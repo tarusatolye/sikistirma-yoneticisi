@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.4);
+}
+
+/* Modal perdesi: koyu temada standart rgba(0,0,0,.60); açık temada hafif slate. */
+:root {
+  --perde: rgba(0, 0, 0, 0.6);
+}
+:root[data-theme='light'],
+.light {
+  --perde: rgba(15, 23, 42, 0.35);
+}
+.modal-perde {
+  background-color: var(--perde);
+}
+
+/* Satır işlemleri hep görünür ama soluk; üstüne gelince, odakta ve dokunmatikte tam renk (STANDARTLAR satır işlemleri). */
+.tarus-satir-islem {
+  opacity: 0.55;
+  transition: opacity 0.15s;
+}
+.group:hover .tarus-satir-islem,
+.tarus-satir-islem:hover,
+.tarus-satir-islem:focus-visible,
+.tarus-satir-islem:focus-within {
+  opacity: 1;
+}
+@media (hover: none) {
+  .tarus-satir-islem {
+    opacity: 1;
+  }
+}

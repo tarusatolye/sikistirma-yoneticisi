@@ -1,0 +1,20 @@
+tarus sıkıştırma yöneticisi - Son Kullanıcı Lisans ve Kullanım Sözleşmesi
+
+Yayımcı: tarusatolye
+Ürün: tarus sıkıştırma yöneticisi (Archive Manager)
+Telif Hakkı: (c) 2026 tarusatolye. MacRAR kaynaklı özellikler (c) 2026 Mesut Çevik.
+
+1. KAPSAM VE KABUL
+Bu sözleşme, tarus sıkıştırma yöneticisi yazılımını kuran veya kullanan kişi ile tarusatolye arasındadır. Kurulumu tamamlayarak bu koşulları kabul etmiş sayılırsınız.
+
+2. KULLANIM HAKKI VE AÇIK KAYNAK
+Yazılım ücretsiz ve MIT lisanslı açık kaynak kodludur. Kişisel, mesleki ve kurumsal amaçlarla ücretsiz olarak kullanılabilir.
+
+3. ÜÇÜNCÜ TARAF YAZILIMLAR
+Arşiv işlemleri 7-Zip (c) Igor Pavlov ile yapılır; 7-Zip kendi lisansıyla (GNU LGPL, unRAR kısıtlaması ve BSD 3-clause) dağıtılır. RAR arşivi oluşturmak için kullanılan RARLAB RAR aracı yazılımla dağıtılmaz; kullanıcı kendi lisansıyla kurar.
+
+4. GİZLİLİK VE VERİ TOPLAMA
+Yazılım hiçbir kişisel veri, dosya adı veya dosya içeriğini uzak sunuculara göndermez. Yalnızca güncelleme denetimi için GitHub Releases'e bağlanır.
+
+5. GARANTİ REDDİ
+Yazılım "olduğu gibi" (AS-IS) sunulur. tarusatolye, kullanımından doğabilecek veri kayıplarından sorumlu tutulamaz. Önemli arşivlerde işlem öncesi yedek almanız önerilir.

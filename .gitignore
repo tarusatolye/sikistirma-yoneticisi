@@ -1,0 +1,8 @@
+bin/
+release/
+node_modules/
+dist/
+build/*
+!build/license.txt
+.DS_Store
+*.dmg
