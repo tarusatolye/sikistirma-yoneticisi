@@ -21,12 +21,12 @@
     "test": "node --test test/*.test.cjs",
     "start": "electron electron/main.cjs",
     "dist": "npm run build && electron-builder",
-    "dist:win": "node scripts/fetch-tools.cjs --platform win && npm run build && electron-builder --win nsis portable",
+    "dist:win": "node scripts/fetch-tools.cjs --platform win && npm run build && electron-builder --win nsis portable --x64",
     "dist:mac": "node scripts/fetch-tools.cjs --platform mac && npm run build && electron-builder --mac dmg zip"
   },
   "build": {
     "appId": "tr.tarus.sikistirmayoneticisi",
-    "productName": "Sikistirma Yoneticisi",
+    "productName": "Sıkıştırma Yöneticisi",
     "copyright": "Copyright © 2026 tarusatolye",
     "publish": [
       {
@@ -91,7 +91,7 @@
       }
     },
     "dmg": {
-      "title": "Sikistirma Yoneticisi",
+      "title": "Sıkıştırma Yöneticisi",
       "contents": [
         {
           "x": 130,
