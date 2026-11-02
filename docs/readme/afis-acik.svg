@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 340" width="1280" height="340">
+  <title>tarus Sıkıştırma Yöneticisi — macOS ve Windows</title>
+  <defs>
+    <pattern id="ince" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="rgba(138,117,80,0.14)" stroke-width="1"/></pattern>
+    <pattern id="kalin" width="100" height="100" patternUnits="userSpaceOnUse"><rect width="100" height="100" fill="url(#ince)"/><path d="M100 0H0V100" fill="none" stroke="rgba(138,117,80,0.14)" stroke-width="1.6"/></pattern>
+  </defs>
+  <rect width="1280" height="340" fill="#f3f1ec"/>
+  <rect width="1280" height="340" fill="url(#kalin)"/>
+  <rect x="16" y="16" width="1248" height="308" fill="none" stroke="#8a7550" stroke-width="1.5"/>
+  <rect x="24" y="24" width="1232" height="292" fill="none" stroke="#8a7550" stroke-opacity="0.45" stroke-width="0.8"/>
+  <rect x="83.5" y="89.5" width="161" height="161" rx="31" fill="none" stroke="#8a7550" stroke-opacity="0.5"/>
+  <g transform="translate(84 90) scale(0.3125)">
+  <defs>
+    <linearGradient id="ikon-zemin" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5b21b6"/>
+      <stop offset="1" stop-color="#4c1d95"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="url(#ikon-zemin)"/>
+  <g transform="translate(64 64) scale(16)" color="#ffffff">
+    <path fill="currentColor" d="M4.528 5.118a1 1 0 0 1 1.027.05l5.554 3.703A2 2 0 0 1 12 10.535V21a1 1 0 0 1-1.555.832l-5.554-3.703A2 2 0 0 1 4 16.465V6a1 1 0 0 1 .528-.882m4-2a1 1 0 0 1 1.027.05l5.554 3.703A2 2 0 0 1 16 8.535V19a1 1 0 0 1-1.555.832l-.945-.63v-8.667a3.5 3.5 0 0 0-1.559-2.912L8 4.995V4a1 1 0 0 1 .528-.882m4-2a1 1 0 0 1 1.027.05l5.554 3.703A2 2 0 0 1 20 6.535V17a1 1 0 0 1-1.555.832l-.945-.63V8.534a3.5 3.5 0 0 0-1.559-2.912L12 2.995V2a1 1 0 0 1 .528-.882"/>
+  </g>
+</g>
+  <text x="300" y="94" font-family="'Space Mono','SFMono-Regular',Menlo,Consolas,monospace" font-size="18" fill="#8a7550" letter-spacing="3">tarus /</text>
+  <text x="296" y="168" font-family="'Space Mono','SFMono-Regular',Menlo,Consolas,monospace" font-size="56" font-weight="700" fill="#1a1a1a" letter-spacing="-2">Sıkıştırma Yöneticisi</text>
+  <text x="300" y="222" font-family="'Space Mono','SFMono-Regular',Menlo,Consolas,monospace" font-size="22" fill="#8a7550" letter-spacing="1">Sade, güvenli, açık kaynak.</text>
+  <text x="300" y="256" font-family="-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="17" fill="rgba(26,26,26,0.55)">RAR, ZIP, 7z ve fazlasını açar · arşiv oluşturur · şifreli arşivler</text>
+  <g font-family="'Space Mono','SFMono-Regular',Menlo,Consolas,monospace" fill="rgba(26,26,26,0.55)" font-size="11" letter-spacing="1">
+    <rect x="860" y="262" width="396" height="54" fill="none" stroke="#8a7550" stroke-opacity="0.7" stroke-width="0.8"/>
+    <line x1="992" y1="262" x2="992" y2="316" stroke="#8a7550" stroke-opacity="0.7" stroke-width="0.8"/>
+    <line x1="1124" y1="262" x2="1124" y2="316" stroke="#8a7550" stroke-opacity="0.7" stroke-width="0.8"/>
+    <text x="870" y="282">PAFTA</text><text x="870" y="304" fill="#1a1a1a" font-size="13">04 / ARŞİV</text><text x="1002" y="282">PLATFORM</text><text x="1002" y="304" fill="#1a1a1a" font-size="13">macOS · WIN</text><text x="1134" y="282">LİSANS</text><text x="1134" y="304" fill="#1a1a1a" font-size="13">MIT</text>
+  </g>
+  <g stroke="#8a7550" stroke-width="1.2" fill="none">
+    <path d="M1196 60 L1196 110 M1171 85 L1221 85"/><circle cx="1196" cy="85" r="16"/>
+  </g>
+  <text x="1196" y="132" text-anchor="middle" font-family="'Space Mono','SFMono-Regular',Menlo,Consolas,monospace" font-size="11" fill="#8a7550">K</text>
+</svg>

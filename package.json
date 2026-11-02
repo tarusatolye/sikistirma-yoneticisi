@@ -67,7 +67,11 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "Sıkıştırma Yöneticisi",
-      "license": "build/license.txt"
+      "license": "build/license.txt",
+      "artifactName": "Sikistirma-Yoneticisi-Setup-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "Sikistirma-Yoneticisi-${version}-portable.${ext}"
     },
     "mac": {
       "identity": "-",
