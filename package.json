@@ -89,7 +89,7 @@
         { "from": "resources/mac", "to": "." }
       ],
       "extendInfo": {
-        "CFBundleDisplayName": "Sıkıştırma Yöneticisi",
+        "CFBundleDisplayName": "Sikistirma Yoneticisi",
         "LSHasLocalizedDisplayName": true
       }
     },
