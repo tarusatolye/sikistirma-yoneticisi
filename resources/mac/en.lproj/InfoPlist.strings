@@ -1,0 +1,3 @@
+/* Finder, Launchpad ve menü çubuğunda görünen ad; paket ve dosya adları ASCII kalır. */
+CFBundleDisplayName = "Sıkıştırma Yöneticisi";
+CFBundleName = "Sıkıştırma Yöneticisi";

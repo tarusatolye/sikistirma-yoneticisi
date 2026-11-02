@@ -26,7 +26,7 @@
   },
   "build": {
     "appId": "tr.tarus.sikistirmayoneticisi",
-    "productName": "Sıkıştırma Yöneticisi",
+    "productName": "Sikistirma Yoneticisi",
     "copyright": "Copyright © 2026 tarusatolye",
     "publish": [
       {
@@ -67,6 +67,7 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "Sıkıştırma Yöneticisi",
+      "uninstallDisplayName": "Sıkıştırma Yöneticisi",
       "license": "build/license.txt",
       "artifactName": "Sikistirma-Yoneticisi-Setup-${version}.${ext}"
     },
@@ -84,14 +85,16 @@
       "category": "public.app-category.utilities",
       "artifactName": "Sikistirma-Yoneticisi-${version}-mac.${ext}",
       "extraResources": [
-        { "from": "bin/mac", "to": "bin" }
+        { "from": "bin/mac", "to": "bin" },
+        { "from": "resources/mac", "to": "." }
       ],
       "extendInfo": {
-        "CFBundleDisplayName": "Sıkıştırma Yöneticisi"
+        "CFBundleDisplayName": "Sıkıştırma Yöneticisi",
+        "LSHasLocalizedDisplayName": true
       }
     },
     "dmg": {
-      "title": "Sıkıştırma Yöneticisi",
+      "title": "Sikistirma Yoneticisi",
       "contents": [
         {
           "x": 130,
