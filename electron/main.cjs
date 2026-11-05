@@ -153,6 +153,14 @@ function makeTempDir() {
   return d;
 }
 
+// docs/ is not packaged (build.files), so the drag icon comes from the system file icon; startDrag throws on an empty icon.
+async function dragIcon(file) {
+  let icon = file ? await app.getFileIcon(file, { size: 'normal' }).catch(() => null) : null;
+  if (!icon || icon.isEmpty()) icon = nativeImage.createFromPath(path.join(__dirname, '..', 'dist', 'favicon-32.png'));
+  if (icon.isEmpty()) icon = nativeImage.createFromPath(path.join(__dirname, '..', 'public', 'favicon-32.png'));
+  return icon;
+}
+
 ipcMain.on('renderer-ready', (e) => {
   rendererReady = true;
   if (pendingPaths.length) {
@@ -323,16 +331,24 @@ ipcMain.handle('invoke', async (e, cmd, args = {}) => {
       const info = needInfo(args.path);
       const dir = makeTempDir();
       const names = args.entries || [];
+      const planned = names.map((n) => path.resolve(dir, n)).filter((f) => f.startsWith(dir + path.sep));
+      // macOS starts a native drag only while the mouse button is still down, and extraction (7zz spawn,
+      // Gatekeeper scan on first run) outlasts a quick drag. So on macOS the drag starts at once with the
+      // planned paths (folders created now); Finder reads the files on drop, after they are extracted.
+      const early = process.platform === 'darwin' && planned.length > 0;
+      if (early) {
+        for (const n of names) {
+          const f = path.resolve(dir, n);
+          if (f.startsWith(dir + path.sep) && info.entries.some((x) => (x.path === n ? x.isDir : x.path.startsWith(n + '/')))) fs.mkdirSync(f, { recursive: true });
+        }
+        e.sender.startDrag({ file: planned[0], files: planned, icon: await dragIcon(null) });
+      }
       const r = await sz.run(sz.extractStages(info, names, dir, args.password, 'overwrite'), runOpts());
       if (r.wrongPassword) return { status: 'password' };
       if (!r.ok) return { status: 'error', summary: r.errorSummary, output: r.output.slice(-20000) };
-      const files = names.map((n) => path.resolve(dir, n)).filter((f) => f.startsWith(dir + path.sep) && existsNoFollow(f));
+      const files = planned.filter((f) => existsNoFollow(f));
       if (!files.length) return { status: 'error', summary: 'nothing extracted', output: '' };
-      // docs/ is not packaged (build.files), so the drag icon comes from the system file icon; startDrag throws on an empty icon.
-      let icon = await app.getFileIcon(files[0], { size: 'normal' }).catch(() => null);
-      if (!icon || icon.isEmpty()) icon = nativeImage.createFromPath(path.join(__dirname, '..', 'dist', 'favicon-32.png'));
-      if (icon.isEmpty()) icon = nativeImage.createFromPath(path.join(__dirname, '..', 'public', 'favicon-32.png'));
-      e.sender.startDrag({ file: files[0], files, icon });
+      if (!early) e.sender.startDrag({ file: files[0], files, icon: await dragIcon(files[0]) });
       return { status: 'ok' };
     }
 

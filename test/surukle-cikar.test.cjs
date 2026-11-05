@@ -23,8 +23,21 @@ test('sürükleme ikonu paketlenmeyen docs/ klasöründen alınmaz', () => {
   const m = read('electron/main.cjs');
   const pkg = JSON.parse(read('package.json'));
   const drag = m.slice(m.indexOf("case 'drag_out'"), m.indexOf("case 'reveal'"));
+  const icon = m.slice(m.indexOf('async function dragIcon'), m.indexOf("ipcMain.on('renderer-ready'"));
   assert.ok(!pkg.build.files.some((f) => f.startsWith('docs')));
-  assert.doesNotMatch(drag, /'docs'/);
-  assert.match(drag, /getFileIcon\(/);
+  assert.doesNotMatch(drag + icon, /'docs'/);
+  assert.match(drag, /icon: await dragIcon\(/);
+  assert.match(icon, /getFileIcon\(/);
   assert.ok(fs.existsSync(path.join(__dirname, '..', 'public', 'favicon-32.png')));
+});
+
+// HATA-0416: macOS'ta yerel sürükleme yalnız fare tuşu basılıyken başlar; açma (7zz) bitene dek tuş bırakılmış olur.
+test("macOS'ta sürükleme arşiv açılmadan önce başlar", () => {
+  const m = read('electron/main.cjs');
+  const drag = m.slice(m.indexOf("case 'drag_out'"), m.indexOf("case 'reveal'"));
+  const early = drag.indexOf("process.platform === 'darwin'");
+  assert.ok(early > 0);
+  const firstDrag = drag.indexOf('startDrag(', early);
+  assert.ok(firstDrag > early && firstDrag < drag.indexOf('sz.run('));
+  assert.match(drag, /if \(!early\) e\.sender\.startDrag/);
 });
