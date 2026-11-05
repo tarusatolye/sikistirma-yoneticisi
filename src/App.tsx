@@ -104,6 +104,24 @@ export const App: React.FC = () => {
     document.title = archive ? `${archive.info.name} - ${t.appTitle}` : t.appTitle;
   }, [archive, t]);
 
+  const dragOutNodes = async (nodes: TreeNode[]) => {
+    if (!archive || !nodes.length) return;
+    let pw = await passwordFor(nodes.map((n) => n.path));
+    if (pw === false) return;
+    for (;;) {
+      const r = await invoke<{ status: string; summary?: string; output?: string }>("drag_out", { path: archive.info.path, entries: nodes.map((n) => n.path), password: pw });
+      if (r.status === "password") {
+        const p = await askPassword(archive.info.name, true);
+        if (p === null) return;
+        pw = p;
+        continue;
+      }
+      if (r.status === "ok") rememberPassword(pw);
+      else await showError(t.result.openEntryFailed, r.summary || "", r.output);
+      return;
+    }
+  };
+
   // ---------------------------------------------------------------------------
   // Jobs
 
@@ -773,6 +791,7 @@ export const App: React.FC = () => {
               selected={selected}
               onSelect={setSelected}
               onOpen={openNode}
+              onDragOut={dragOutNodes}
               onContext={onContext}
               canModify={archive.info.supportsModification}
               solid={archive.info.solid}

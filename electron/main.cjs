@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, shell, Menu, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, Menu, dialog, nativeImage } = require('electron');
 const { autoUpdater } = require('electron-updater');
 const path = require('path');
 const fs = require('fs');
@@ -162,7 +162,7 @@ ipcMain.on('renderer-ready', (e) => {
   }
 });
 
-ipcMain.handle('invoke', async (_e, cmd, args = {}) => {
+ipcMain.handle('invoke', async (e, cmd, args = {}) => {
   switch (cmd) {
     case 'get_settings':
       return settings;
@@ -316,6 +316,21 @@ ipcMain.handle('invoke', async (_e, cmd, args = {}) => {
       const file = path.join(dir, path.basename(args.entry));
       const err = await shell.openPath(file);
       return err ? { status: 'error', summary: err, output: '' } : { status: 'ok' };
+    }
+
+    // Dragging entries out of the window: extract them (with their folders) to a temp folder, then start a native file drag.
+    case 'drag_out': {
+      const info = needInfo(args.path);
+      const dir = makeTempDir();
+      const names = args.entries || [];
+      const r = await sz.run(sz.extractStages(info, names, dir, args.password, 'overwrite'), runOpts());
+      if (r.wrongPassword) return { status: 'password' };
+      if (!r.ok) return { status: 'error', summary: r.errorSummary, output: r.output.slice(-20000) };
+      const files = names.map((n) => path.resolve(dir, n)).filter((f) => f.startsWith(dir + path.sep) && existsNoFollow(f));
+      if (!files.length) return { status: 'error', summary: 'nothing extracted', output: '' };
+      const icon = nativeImage.createFromPath(path.join(__dirname, '..', 'docs', 'icon.png')).resize({ width: 32, height: 32 });
+      e.sender.startDrag({ file: files[0], files, icon });
+      return { status: 'ok' };
     }
 
     case 'reveal': {
