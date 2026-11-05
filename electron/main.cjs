@@ -328,7 +328,10 @@ ipcMain.handle('invoke', async (e, cmd, args = {}) => {
       if (!r.ok) return { status: 'error', summary: r.errorSummary, output: r.output.slice(-20000) };
       const files = names.map((n) => path.resolve(dir, n)).filter((f) => f.startsWith(dir + path.sep) && existsNoFollow(f));
       if (!files.length) return { status: 'error', summary: 'nothing extracted', output: '' };
-      const icon = nativeImage.createFromPath(path.join(__dirname, '..', 'docs', 'icon.png')).resize({ width: 32, height: 32 });
+      // docs/ is not packaged (build.files), so the drag icon comes from the system file icon; startDrag throws on an empty icon.
+      let icon = await app.getFileIcon(files[0], { size: 'normal' }).catch(() => null);
+      if (!icon || icon.isEmpty()) icon = nativeImage.createFromPath(path.join(__dirname, '..', 'dist', 'favicon-32.png'));
+      if (icon.isEmpty()) icon = nativeImage.createFromPath(path.join(__dirname, '..', 'public', 'favicon-32.png'));
       e.sender.startDrag({ file: files[0], files, icon });
       return { status: 'ok' };
     }

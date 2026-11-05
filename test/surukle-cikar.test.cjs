@@ -17,3 +17,14 @@ test('ana süreç drag_out ile geçici klasöre açıp startDrag çağırır', (
   assert.match(m, /case 'drag_out'/);
   assert.match(m, /startDrag\(\{[^}]*files/);
 });
+
+// HATA-0415: paketlenen uygulamada docs/ yok (build.files); boş ikonla startDrag hata verir, Windows'ta sürükleme hiç başlamaz.
+test('sürükleme ikonu paketlenmeyen docs/ klasöründen alınmaz', () => {
+  const m = read('electron/main.cjs');
+  const pkg = JSON.parse(read('package.json'));
+  const drag = m.slice(m.indexOf("case 'drag_out'"), m.indexOf("case 'reveal'"));
+  assert.ok(!pkg.build.files.some((f) => f.startsWith('docs')));
+  assert.doesNotMatch(drag, /'docs'/);
+  assert.match(drag, /getFileIcon\(/);
+  assert.ok(fs.existsSync(path.join(__dirname, '..', 'public', 'favicon-32.png')));
+});
