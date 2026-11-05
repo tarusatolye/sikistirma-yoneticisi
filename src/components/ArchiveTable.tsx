@@ -85,6 +85,7 @@ interface ArchiveTableProps {
   selected: string[];
   onSelect: (paths: string[]) => void;
   onOpen: (node: TreeNode) => void;
+  onDragOut: (nodes: TreeNode[]) => void;
   onContext: (action: ContextAction, nodes: TreeNode[]) => void;
   canModify: boolean;
   solid: boolean;
@@ -101,6 +102,7 @@ export const ArchiveTable: React.FC<ArchiveTableProps> = ({
   selected,
   onSelect,
   onOpen,
+  onDragOut,
   onContext,
   canModify,
   solid,
@@ -308,6 +310,11 @@ export const ArchiveTable: React.FC<ArchiveTableProps> = ({
                 key={node.path}
                 onClick={(e) => handleRowClick(node, e)}
                 onDoubleClick={() => onOpen(node)}
+                draggable
+                onDragStart={(e) => {
+                  e.preventDefault();
+                  onDragOut(isSelected ? selectedNodes() : [node]);
+                }}
                 onContextMenu={(e) => {
                   e.preventDefault();
                   if (!isSelected) onSelect([node.path]);
