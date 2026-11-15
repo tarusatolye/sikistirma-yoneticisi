@@ -1,7 +1,7 @@
 {
   "name": "sikistirma-yoneticisi",
   "private": true,
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "tarus sıkıştırma yöneticisi — Windows ve macOS için açık kaynak kodlu arşiv yöneticisi",
   "author": "tarusatolye <yazilim@tarus.tr>",
   "copyright": "Copyright © 2026 tarusatolye",
