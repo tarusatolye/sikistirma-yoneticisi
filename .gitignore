@@ -4,5 +4,6 @@ node_modules/
 dist/
 build/*
 !build/license.txt
+!build/entitlements.mac.plist
 .DS_Store
 *.dmg

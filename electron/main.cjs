@@ -404,7 +404,21 @@ ipcMain.handle('invoke', async (e, cmd, args = {}) => {
     }
 
     case 'restart_and_update': {
-      autoUpdater.quitAndInstall();
+      installingUpdate = true;
+      try {
+        autoUpdater.quitAndInstall();
+      } catch (err) {
+        installingUpdate = false;
+        emit('update_error', { message: err ? err.message : String(err) });
+        return null;
+      }
+      // Squirrel.Mac bazen hata vermeden kurulumu yapmaz (ör. imza geçersizse);
+      // uygulama hâlâ açıksa kullanıcıyı bilgilendir.
+      setTimeout(() => {
+        if (!installingUpdate) return;
+        installingUpdate = false;
+        emit('update_error', { message: 'Güncelleme kurulamadı. Yeni sürümü yayın sayfasından indirip elle kurabilirsiniz.' });
+      }, 20000);
       return null;
     }
 
@@ -490,6 +504,8 @@ app.on('open-file', (event, p) => {
 });
 
 // Auto-updater configuration
+let installingUpdate = false;
+let updateDownloaded = false;
 autoUpdater.autoDownload = true;
 autoUpdater.autoInstallOnAppQuit = true;
 
@@ -497,8 +513,18 @@ autoUpdater.on('update-downloaded', (info) => {
   emit('update_downloaded', { version: info.version });
 });
 
+autoUpdater.on('update-downloaded', () => {
+  updateDownloaded = true;
+});
+
 autoUpdater.on('error', (err) => {
   console.log('autoUpdater error:', err ? err.message : err);
+  // Arka plandaki denetim hataları (ör. çevrimdışı) sessiz kalır; yalnız
+  // indirilmiş güncelleme kurulurken ya da kurulmayı beklerken bildirilir.
+  if (installingUpdate || updateDownloaded) {
+    installingUpdate = false;
+    emit('update_error', { message: err ? err.message : 'Güncelleme hatası' });
+  }
 });
 
 app.whenReady().then(() => {

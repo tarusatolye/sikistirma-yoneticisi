@@ -260,6 +260,7 @@ const tr = {
     text: "Sıkıştırma Yöneticisi v{version} indirildi. Güncellemeyi tamamlamak için yeniden başlatın.",
     restart: "Yeniden Başlat ve Güncelle",
     later: "Sonra",
+    failed: "Güncelleme kurulamadı:",
   },
 };
 
@@ -522,6 +523,7 @@ const en: Strings = {
     text: "Archive Manager v{version} has been downloaded. Restart to finish updating.",
     restart: "Restart and Update",
     later: "Later",
+    failed: "Update could not be installed:",
   },
 };
 
