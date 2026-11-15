@@ -10,10 +10,11 @@ const { execFileSync } = require('child_process');
 
 const root = path.join(__dirname, '..');
 const svg = fs.readFileSync(path.join(root, 'docs', 'icon.svg'), 'utf8');
+const docSvg = fs.readFileSync(path.join(root, 'docs', 'document-icon.svg'), 'utf8');
 
 // Draws the SVG onto a canvas in the page and reads the PNG back (capturePage hangs on hidden windows).
-async function render(win, size) {
-  const src = 'data:image/svg+xml;base64,' + Buffer.from(svg).toString('base64');
+async function render(win, size, source = svg) {
+  const src = 'data:image/svg+xml;base64,' + Buffer.from(source).toString('base64');
   const dataUrl = await win.webContents.executeJavaScript(`new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
@@ -74,6 +75,16 @@ app.whenReady().then(async () => {
     }
     execFileSync('iconutil', ['-c', 'icns', set, '-o', path.join(root, 'docs', 'icon.icns')]);
     fs.rmSync(path.dirname(set), { recursive: true, force: true });
+
+    // Arşiv belgeleri için Finder belge ikonu (CFBundleTypeIconFile → document.icns).
+    const dset = fs.mkdtempSync(path.join(os.tmpdir(), 'docicon-')) + '/document.iconset';
+    fs.mkdirSync(dset);
+    for (const s of [16, 32, 128, 256, 512]) {
+      fs.writeFileSync(path.join(dset, `icon_${s}x${s}.png`), await render(win, s, docSvg));
+      fs.writeFileSync(path.join(dset, `icon_${s}x${s}@2x.png`), await render(win, s * 2, docSvg));
+    }
+    execFileSync('iconutil', ['-c', 'icns', dset, '-o', path.join(root, 'docs', 'document.icns')]);
+    fs.rmSync(path.dirname(dset), { recursive: true, force: true });
   } else {
     console.log('docs/icon.icns is only produced on macOS (iconutil).');
   }

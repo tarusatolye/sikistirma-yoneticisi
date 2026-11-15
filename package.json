@@ -155,11 +155,241 @@
         {
           "from": "resources/mac",
           "to": "."
+        },
+        {
+          "from": "docs/document.icns",
+          "to": "document.icns"
         }
       ],
       "extendInfo": {
         "CFBundleDisplayName": "Sikistirma Yoneticisi",
-        "LSHasLocalizedDisplayName": true
+        "LSHasLocalizedDisplayName": true,
+        "CFBundleDocumentTypes": [
+          {
+            "CFBundleTypeName": "ZIP Archive",
+            "CFBundleTypeRole": "Editor",
+            "LSHandlerRank": "Default",
+            "CFBundleTypeExtensions": [
+              "zip",
+              "zipx"
+            ],
+            "LSItemContentTypes": [
+              "public.zip-archive",
+              "tr.tarus.sikistirmayoneticisi.zipx"
+            ],
+            "CFBundleTypeIconFile": "document.icns"
+          },
+          {
+            "CFBundleTypeName": "RAR Archive",
+            "CFBundleTypeRole": "Viewer",
+            "LSHandlerRank": "Default",
+            "CFBundleTypeExtensions": [
+              "rar",
+              "r00",
+              "r01"
+            ],
+            "LSItemContentTypes": [
+              "com.rarlab.rar-archive"
+            ],
+            "CFBundleTypeIconFile": "document.icns"
+          },
+          {
+            "CFBundleTypeName": "7-Zip Archive",
+            "CFBundleTypeRole": "Editor",
+            "LSHandlerRank": "Default",
+            "CFBundleTypeExtensions": [
+              "7z"
+            ],
+            "LSItemContentTypes": [
+              "org.7-zip.7-zip-archive"
+            ],
+            "CFBundleTypeIconFile": "document.icns"
+          },
+          {
+            "CFBundleTypeName": "Compressed Archive",
+            "CFBundleTypeRole": "Viewer",
+            "LSHandlerRank": "Default",
+            "CFBundleTypeExtensions": [
+              "tar",
+              "tgz",
+              "gz",
+              "bz2",
+              "tbz2",
+              "xz",
+              "txz",
+              "zst",
+              "lz4",
+              "lzma"
+            ],
+            "LSItemContentTypes": [
+              "public.tar-archive",
+              "org.gnu.gnu-zip-tar-archive",
+              "org.gnu.gnu-zip-archive",
+              "public.bzip2-archive",
+              "public.tar-bzip2-archive",
+              "org.tukaani.xz-archive",
+              "org.tukaani.tar-xz-archive",
+              "tr.tarus.sikistirmayoneticisi.zst",
+              "tr.tarus.sikistirmayoneticisi.lz4",
+              "tr.tarus.sikistirmayoneticisi.lzma"
+            ],
+            "CFBundleTypeIconFile": "document.icns"
+          },
+          {
+            "CFBundleTypeName": "Archive",
+            "CFBundleTypeRole": "Viewer",
+            "LSHandlerRank": "Default",
+            "CFBundleTypeExtensions": [
+              "cab",
+              "iso",
+              "arj",
+              "lzh",
+              "cpio",
+              "wim",
+              "001"
+            ],
+            "LSItemContentTypes": [
+              "com.microsoft.cab",
+              "public.iso-image",
+              "public.cpio-archive",
+              "tr.tarus.sikistirmayoneticisi.arj",
+              "tr.tarus.sikistirmayoneticisi.lzh",
+              "tr.tarus.sikistirmayoneticisi.wim",
+              "tr.tarus.sikistirmayoneticisi.split001"
+            ],
+            "CFBundleTypeIconFile": "document.icns"
+          }
+        ],
+        "UTImportedTypeDeclarations": [
+          {
+            "UTTypeIdentifier": "com.rarlab.rar-archive",
+            "UTTypeDescription": "RAR Archive",
+            "UTTypeConformsTo": [
+              "public.data",
+              "public.archive"
+            ],
+            "UTTypeTagSpecification": {
+              "public.filename-extension": [
+                "rar",
+                "r00",
+                "r01"
+              ]
+            },
+            "UTTypeIconFile": "document.icns"
+          },
+          {
+            "UTTypeIdentifier": "tr.tarus.sikistirmayoneticisi.zipx",
+            "UTTypeDescription": "ZIPX Archive",
+            "UTTypeConformsTo": [
+              "public.data",
+              "public.archive"
+            ],
+            "UTTypeTagSpecification": {
+              "public.filename-extension": [
+                "zipx"
+              ]
+            },
+            "UTTypeIconFile": "document.icns"
+          },
+          {
+            "UTTypeIdentifier": "tr.tarus.sikistirmayoneticisi.zst",
+            "UTTypeDescription": "Zstandard Archive",
+            "UTTypeConformsTo": [
+              "public.data",
+              "public.archive"
+            ],
+            "UTTypeTagSpecification": {
+              "public.filename-extension": [
+                "zst"
+              ]
+            },
+            "UTTypeIconFile": "document.icns"
+          },
+          {
+            "UTTypeIdentifier": "tr.tarus.sikistirmayoneticisi.lz4",
+            "UTTypeDescription": "LZ4 Archive",
+            "UTTypeConformsTo": [
+              "public.data",
+              "public.archive"
+            ],
+            "UTTypeTagSpecification": {
+              "public.filename-extension": [
+                "lz4"
+              ]
+            },
+            "UTTypeIconFile": "document.icns"
+          },
+          {
+            "UTTypeIdentifier": "tr.tarus.sikistirmayoneticisi.lzma",
+            "UTTypeDescription": "LZMA Archive",
+            "UTTypeConformsTo": [
+              "public.data",
+              "public.archive"
+            ],
+            "UTTypeTagSpecification": {
+              "public.filename-extension": [
+                "lzma"
+              ]
+            },
+            "UTTypeIconFile": "document.icns"
+          },
+          {
+            "UTTypeIdentifier": "tr.tarus.sikistirmayoneticisi.arj",
+            "UTTypeDescription": "ARJ Archive",
+            "UTTypeConformsTo": [
+              "public.data",
+              "public.archive"
+            ],
+            "UTTypeTagSpecification": {
+              "public.filename-extension": [
+                "arj"
+              ]
+            },
+            "UTTypeIconFile": "document.icns"
+          },
+          {
+            "UTTypeIdentifier": "tr.tarus.sikistirmayoneticisi.lzh",
+            "UTTypeDescription": "LZH Archive",
+            "UTTypeConformsTo": [
+              "public.data",
+              "public.archive"
+            ],
+            "UTTypeTagSpecification": {
+              "public.filename-extension": [
+                "lzh"
+              ]
+            },
+            "UTTypeIconFile": "document.icns"
+          },
+          {
+            "UTTypeIdentifier": "tr.tarus.sikistirmayoneticisi.wim",
+            "UTTypeDescription": "WIM Image",
+            "UTTypeConformsTo": [
+              "public.data",
+              "public.archive"
+            ],
+            "UTTypeTagSpecification": {
+              "public.filename-extension": [
+                "wim"
+              ]
+            },
+            "UTTypeIconFile": "document.icns"
+          },
+          {
+            "UTTypeIdentifier": "tr.tarus.sikistirmayoneticisi.split001",
+            "UTTypeDescription": "Split Archive Part",
+            "UTTypeConformsTo": [
+              "public.data",
+              "public.archive"
+            ],
+            "UTTypeTagSpecification": {
+              "public.filename-extension": [
+                "001"
+              ]
+            },
+            "UTTypeIconFile": "document.icns"
+          }
+        ]
       }
     },
     "dmg": {
