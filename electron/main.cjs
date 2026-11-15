@@ -154,12 +154,37 @@ function makeTempDir() {
 }
 
 // docs/ is not packaged (build.files), so the drag icon comes from the system file icon; startDrag throws on an empty icon.
-async function dragIcon(file) {
-  let icon = file ? await app.getFileIcon(file, { size: 'normal' }).catch(() => null) : null;
-  if (!icon || icon.isEmpty()) icon = nativeImage.createFromPath(path.join(__dirname, '..', 'dist', 'favicon-32.png'));
-  if (icon.isEmpty()) icon = nativeImage.createFromPath(path.join(__dirname, '..', 'public', 'favicon-32.png'));
-  return icon;
+function dragIconSync() {
+  for (const p of [path.join(__dirname, '..', 'dist', 'favicon-32.png'), path.join(__dirname, '..', 'public', 'favicon-32.png')]) {
+    const icon = nativeImage.createFromPath(p);
+    if (!icon.isEmpty()) return icon;
+  }
+  return nativeImage.createFromBuffer(Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64'));
 }
+
+// Drag out of the window. Electron wants startDrag during dragstart with files that already exist, so the renderer
+// calls this synchronously: extract with 7z (blocking, mouse still down), then start the native drag right here.
+ipcMain.on('drag-out-sync', (e, args) => {
+  const reply = (v) => {
+    e.returnValue = v;
+  };
+  try {
+    const info = archives.get(args.path);
+    if (!info) return reply({ status: 'error', summary: 'Archive is not open', output: '' });
+    const dir = makeTempDir();
+    const names = args.entries || [];
+    const planned = names.map((n) => path.resolve(dir, n)).filter((f) => f.startsWith(dir + path.sep));
+    const r = sz.runSync(sz.extractStages(info, names, dir, args.password, 'overwrite'), runOpts());
+    if (r.wrongPassword) return reply({ status: 'password' });
+    if (!r.ok) return reply({ status: 'error', summary: r.errorSummary, output: r.output.slice(-20000) });
+    const files = planned.filter((f) => existsNoFollow(f));
+    if (!files.length) return reply({ status: 'error', summary: 'nothing extracted', output: '' });
+    e.sender.startDrag({ file: files[0], files, icon: dragIconSync() });
+    reply({ status: 'ok' });
+  } catch (err) {
+    reply({ status: 'error', summary: String(err && err.message || err), output: '' });
+  }
+});
 
 ipcMain.on('renderer-ready', (e) => {
   rendererReady = true;
@@ -324,32 +349,6 @@ ipcMain.handle('invoke', async (e, cmd, args = {}) => {
       const file = path.join(dir, path.basename(args.entry));
       const err = await shell.openPath(file);
       return err ? { status: 'error', summary: err, output: '' } : { status: 'ok' };
-    }
-
-    // Dragging entries out of the window: extract them (with their folders) to a temp folder, then start a native file drag.
-    case 'drag_out': {
-      const info = needInfo(args.path);
-      const dir = makeTempDir();
-      const names = args.entries || [];
-      const planned = names.map((n) => path.resolve(dir, n)).filter((f) => f.startsWith(dir + path.sep));
-      // macOS starts a native drag only while the mouse button is still down, and extraction (7zz spawn,
-      // Gatekeeper scan on first run) outlasts a quick drag. So on macOS the drag starts at once with the
-      // planned paths (folders created now); Finder reads the files on drop, after they are extracted.
-      const early = process.platform === 'darwin' && planned.length > 0;
-      if (early) {
-        for (const n of names) {
-          const f = path.resolve(dir, n);
-          if (f.startsWith(dir + path.sep) && info.entries.some((x) => (x.path === n ? x.isDir : x.path.startsWith(n + '/')))) fs.mkdirSync(f, { recursive: true });
-        }
-        e.sender.startDrag({ file: planned[0], files: planned, icon: await dragIcon(null) });
-      }
-      const r = await sz.run(sz.extractStages(info, names, dir, args.password, 'overwrite'), runOpts());
-      if (r.wrongPassword) return { status: 'password' };
-      if (!r.ok) return { status: 'error', summary: r.errorSummary, output: r.output.slice(-20000) };
-      const files = planned.filter((f) => existsNoFollow(f));
-      if (!files.length) return { status: 'error', summary: 'nothing extracted', output: '' };
-      if (!early) e.sender.startDrag({ file: files[0], files, icon: await dragIcon(files[0]) });
-      return { status: 'ok' };
     }
 
     case 'reveal': {

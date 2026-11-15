@@ -3,6 +3,7 @@ interface Bridge {
   invoke: (cmd: string, args?: Record<string, unknown>) => Promise<any>;
   on: (event: string, cb: (payload: any) => void) => () => void;
   ready: () => void;
+  dragOutSync: (args: Record<string, unknown>) => { status: string; summary?: string; output?: string };
   pathForFile: (file: File) => string;
 }
 
@@ -26,4 +27,9 @@ export function rendererReady() {
 
 export function pathForFile(file: File): string {
   return window.bridge.pathForFile(file);
+}
+
+// Blocking: extracts and starts the native drag inside the dragstart handler (the OS only allows it while the mouse is down).
+export function dragOutSync(args: Record<string, unknown>) {
+  return window.bridge.dragOutSync(args);
 }

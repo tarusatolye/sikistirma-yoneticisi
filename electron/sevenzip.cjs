@@ -5,7 +5,7 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const { spawn } = require('child_process');
+const { spawn, spawnSync } = require('child_process');
 const { EventEmitter } = require('events');
 
 // ---------------------------------------------------------------------------
@@ -349,6 +349,30 @@ function lastSegment(s, keepAll = false) {
   return parts.length ? parts[parts.length - 1] : '';
 }
 
+// Blocking variant of run() for a drag that must start while the mouse button is still down. Stages are chained through buffers.
+function runSync(stages, opts = {}) {
+  let input = null;
+  let output = '';
+  let code = -1;
+  for (let i = 0; i < stages.length; i++) {
+    const exe = stages[i].tool === 'rar' ? opts.rarPath : opts.sevenZipPath || sevenZipPath();
+    if (!exe) return new Result(-1, 'ERROR: RAR tool not found');
+    const env = { ...process.env, LANG: 'en_US.UTF-8', LC_ALL: 'en_US.UTF-8' };
+    const r = spawnSync(exe, stages[i].args, { cwd: opts.cwd || undefined, env, windowsHide: true, input: input || undefined, maxBuffer: 1 << 30 });
+    if (r.error) return new Result(-1, 'ERROR: ' + r.error.message);
+    const err = (r.stderr || Buffer.alloc(0)).toString('utf8');
+    if (i < stages.length - 1) {
+      input = r.stdout;
+      output += err;
+      if (r.status !== 0 && r.status !== 1) return new Result(r.status == null ? -1 : r.status, output);
+    } else {
+      output += (r.stdout || Buffer.alloc(0)).toString('utf8').replace(/\r\n/g, '\n').replace(/\r/g, '\n') + err;
+      code = r.status == null ? -1 : r.status;
+    }
+  }
+  return new Result(code, output);
+}
+
 function run(stages, opts = {}) {
   return new Promise((resolve) => {
     new Job(stages, opts).on('done', resolve).start();
@@ -664,6 +688,7 @@ module.exports = {
   Result,
   Job,
   run,
+  runSync,
   listStages,
   parseListing,
   list,
