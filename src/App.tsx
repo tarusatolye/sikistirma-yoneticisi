@@ -16,7 +16,7 @@ import {
   X,
   Upload,
 } from "lucide-react";
-import { invoke, listen, pathForFile, rendererReady } from "./bridge";
+import { dragOutSync, invoke, listen, pathForFile, rendererReady } from "./bridge";
 import { translations, fmt } from "./i18n";
 import { AppSettings, ArchiveInfo, CompressOptions, FORMAT_CAPS, JobResult, ListResult, RarStatus } from "./types";
 import { buildTree, parentPath, TreeNode } from "./tree";
@@ -104,22 +104,24 @@ export const App: React.FC = () => {
     document.title = archive ? `${archive.info.name} - ${t.appTitle}` : t.appTitle;
   }, [archive, t]);
 
-  const dragOutNodes = async (nodes: TreeNode[]) => {
+  // Must stay synchronous: the native drag can only start while the mouse button is still down. If a password
+  // is needed but unknown, no drag starts; the user is asked and drags again.
+  const dragOutNodes = (nodes: TreeNode[]) => {
     if (!archive || !nodes.length) return;
-    let pw = await passwordFor(nodes.map((n) => n.path));
-    if (pw === false) return;
-    for (;;) {
-      const r = await invoke<{ status: string; summary?: string; output?: string }>("drag_out", { path: archive.info.path, entries: nodes.map((n) => n.path), password: pw });
-      if (r.status === "password") {
-        const p = await askPassword(archive.info.name, true);
-        if (p === null) return;
-        pw = p;
-        continue;
-      }
-      if (r.status === "ok") rememberPassword(pw);
-      else await showError(t.result.openEntryFailed, r.summary || "", r.output);
+    const paths = nodes.map((n) => n.path);
+    const pw = archive.password || null;
+    const needsPw = !pw && (archive.info.headersEncrypted || nodesFor(paths).some((n) => n.encrypted));
+    const askAgain = async () => {
+      const p = await askPassword(archive.info.name, needsPw ? false : true);
+      if (p !== null) rememberPassword(p);
+    };
+    if (needsPw) {
+      askAgain();
       return;
     }
+    const r = dragOutSync({ path: archive.info.path, entries: paths, password: pw });
+    if (r.status === "password") askAgain();
+    else if (r.status !== "ok") showError(t.result.openEntryFailed, r.summary || "", r.output);
   };
 
   // ---------------------------------------------------------------------------
@@ -504,11 +506,11 @@ export const App: React.FC = () => {
   // ---------------------------------------------------------------------------
   // Drag & drop, files from the OS
 
-  const handleIncoming = async (paths: string[], fromOs = false) => {
+  const handleIncoming = async (paths: string[], _fromOs = false) => {
     if (!paths.length) return;
     const infos = await Promise.all(paths.map((p) => invoke<PathInfo>("path_info", { path: p })));
     const singleArchive = paths.length === 1 && infos[0].isArchive && !infos[0].isDir;
-    if (singleArchive && (!archive || fromOs)) {
+    if (singleArchive) {
       openArchive(paths[0]);
       return;
     }
@@ -523,7 +525,6 @@ export const App: React.FC = () => {
       items: paths.map(baseName),
       tone: "question",
       choices: [
-        ...(singleArchive ? [{ label: d.openArchive, value: "open" }] : []),
         { label: d.newArchive, value: "new" },
         ...(archive.info.supportsModification ? [{ label: d.addHere, value: "add", kind: "primary" as const }] : []),
       ],
@@ -548,7 +549,9 @@ export const App: React.FC = () => {
     e.preventDefault();
     setDragging(false);
     if (busy && !compressItems) return;
-    const paths = Array.from(e.dataTransfer.files).map(pathForFile).filter(Boolean);
+    // A drag that started in this window (extracted to our temp folder) dropped back on it does nothing.
+    const paths = Array.from(e.dataTransfer.files).map(pathForFile).filter((p) => p && !/sikistirma-ac-/.test(p));
+    if (!paths.length) return;
     if (compressItems) setCompressItems([...compressItems, ...paths.filter((p) => !compressItems.includes(p))]);
     else handleIncoming(paths);
   };

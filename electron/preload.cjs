@@ -21,6 +21,7 @@ contextBridge.exposeInMainWorld('bridge', {
     listeners.get(event).add(cb);
     return () => listeners.get(event).delete(cb);
   },
+  dragOutSync: (args) => ipcRenderer.sendSync('drag-out-sync', args),
   ready: () => ipcRenderer.send('renderer-ready'),
   // Electron 32+ no longer exposes File.path; dropped files are resolved here.
   pathForFile: (file) => {
