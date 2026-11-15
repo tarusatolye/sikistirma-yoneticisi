@@ -73,6 +73,7 @@ export const App: React.FC = () => {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [progress, setProgress] = useState<(ProgressState & { id: number }) | null>(null);
   const [updateVersion, setUpdateVersion] = useState<string | null>(null);
+  const [updateError, setUpdateError] = useState<string | null>(null);
   const [rarAvailable, setRarAvailable] = useState(false);
 
   const jobResolvers = useRef(new Map<number, (r: JobResult) => void>());
@@ -156,10 +157,12 @@ export const App: React.FC = () => {
       setProgress((p) => (p && p.id === e.id ? null : p));
     });
     const offUpdate = listen<{ version: string }>("update_downloaded", (e) => setUpdateVersion(e?.version || "?"));
+    const offUpdateError = listen<{ message: string }>("update_error", (e) => setUpdateError(e?.message || "?"));
     return () => {
       offProgress();
       offDone();
       offUpdate();
+      offUpdateError();
     };
   }, [lang]);
 
@@ -934,14 +937,17 @@ export const App: React.FC = () => {
       )}
 
       {/* Auto update notification toast */}
-      {updateVersion && (
+      {(updateVersion || updateError) && (
         <div className="fixed bottom-10 right-4 z-50 bg-[#1e232d] border border-violet-500/60 shadow-2xl rounded-lg p-3.5 max-w-sm flex items-start space-x-3 backdrop-blur-md">
           <div className="w-8 h-8 rounded-full bg-violet-500/20 text-violet-400 flex items-center justify-center shrink-0 mt-0.5">
             <CloudDownload size={18} />
           </div>
           <div className="flex-1 min-w-0">
             <h4 className="text-xs font-semibold text-white">{t.update.ready}</h4>
-            <p className="text-[11px] text-[#a0a7b6] mt-0.5 leading-relaxed">{fmt(t.update.text, { version: updateVersion })}</p>
+            <p className="text-[11px] text-[#a0a7b6] mt-0.5 leading-relaxed">{fmt(t.update.text, { version: updateVersion ?? "" })}</p>
+            {updateError && (
+              <p className="text-[11px] text-red-400 mt-1.5 leading-relaxed break-words">{t.update.failed} {updateError}</p>
+            )}
             <div className="mt-2.5 flex items-center space-x-2">
               <button
                 onClick={() => invoke("restart_and_update")}
@@ -949,7 +955,7 @@ export const App: React.FC = () => {
               >
                 {t.update.restart}
               </button>
-              <button onClick={() => setUpdateVersion(null)} className="px-2 py-1 text-xs text-[#8e95a5] hover:text-white transition-colors">
+              <button onClick={() => { setUpdateVersion(null); setUpdateError(null); }} className="px-2 py-1 text-xs text-[#8e95a5] hover:text-white transition-colors">
                 {t.update.later}
               </button>
             </div>
