@@ -113,6 +113,10 @@ export const ArchiveTable: React.FC<ArchiveTableProps> = ({
   const tableRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const anchor = useRef<string | null>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const [marquee, setMarquee] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null);
+  const marqueed = useRef(false);
+  const live = useRef({ sorted: [] as TreeNode[], selected: [] as string[], onSelect });
 
   useEffect(() => {
     try { localStorage.setItem(WIDTHS_KEY, JSON.stringify(widths)); } catch {}
@@ -239,6 +243,85 @@ export const ArchiveTable: React.FC<ArchiveTableProps> = ({
     }
   };
 
+  live.current = { sorted, selected, onSelect };
+
+  // Finder-style rubber band: press on empty space or an unselected row and drag. A selected row starts the file drag instead.
+  const startMarquee = (e: React.MouseEvent) => {
+    const body = bodyRef.current;
+    if (!body || e.button !== 0) return;
+    const el = e.target as HTMLElement;
+    if (el.closest('[data-selected="true"]') || el.closest("button,input")) return;
+    const box = body.getBoundingClientRect();
+    if (e.clientX > box.left + body.clientWidth) return; // scrollbar
+    const toContent = (cx: number, cy: number) => ({
+      x: Math.min(Math.max(cx - box.left, 0), body.clientWidth) + body.scrollLeft,
+      y: cy - box.top + body.scrollTop,
+    });
+    const origin = toContent(e.clientX, e.clientY);
+    const additive = e.shiftKey;
+    const invert = e.metaKey || e.ctrlKey;
+    const base = additive || invert ? live.current.selected : [];
+    let pointer = { x: e.clientX, y: e.clientY };
+    let active = false;
+    let raf = 0;
+    let last = "";
+
+    const update = () => {
+      const cur = toContent(pointer.x, pointer.y);
+      const x1 = Math.min(origin.x, cur.x), x2 = Math.max(origin.x, cur.x);
+      const y1 = Math.min(origin.y, cur.y), y2 = Math.max(origin.y, cur.y);
+      setMarquee({ x1, y1: Math.max(0, y1), x2, y2: Math.min(body.scrollHeight, y2) });
+      const hits: string[] = [];
+      body.querySelectorAll<HTMLElement>("[data-path]").forEach((row) => {
+        const top = row.offsetTop, bottom = top + row.offsetHeight;
+        if (bottom > y1 && top < y2 && row.offsetLeft + row.offsetWidth > x1 && row.offsetLeft < x2) hits.push(row.dataset.path!);
+      });
+      let next: string[];
+      if (invert) next = [...base.filter((p) => !hits.includes(p)), ...hits.filter((p) => !base.includes(p))];
+      else if (additive) next = [...base, ...hits.filter((p) => !base.includes(p))];
+      else next = hits;
+      const key = next.join("\u0000");
+      if (key !== last) {
+        last = key;
+        live.current.onSelect(next);
+      }
+    };
+    const tick = () => {
+      const b = body.getBoundingClientRect();
+      const edge = 28;
+      let dy = 0;
+      if (pointer.y < b.top + edge) dy = -Math.min(24, (b.top + edge - pointer.y) / 2 + 2);
+      else if (pointer.y > b.bottom - edge) dy = Math.min(24, (pointer.y - (b.bottom - edge)) / 2 + 2);
+      if (dy) {
+        const before = body.scrollTop;
+        body.scrollTop += dy;
+        if (body.scrollTop !== before) update();
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    const onMove = (ev: MouseEvent) => {
+      pointer = { x: ev.clientX, y: ev.clientY };
+      if (!active) {
+        if (Math.abs(ev.clientX - e.clientX) < 4 && Math.abs(ev.clientY - e.clientY) < 4) return;
+        active = true;
+        raf = requestAnimationFrame(tick);
+      }
+      update();
+    };
+    const onUpMouse = () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUpMouse);
+      cancelAnimationFrame(raf);
+      if (active) {
+        setMarquee(null);
+        marqueed.current = true; // swallow the click that follows the release
+        setTimeout(() => (marqueed.current = false), 0);
+      }
+    };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUpMouse);
+  };
+
   const selectedNodes = () => sorted.filter((n) => selected.includes(n.path));
 
   const menuItem = (icon: React.ReactNode, label: string, action: ContextAction, danger = false, disabled = false) => (
@@ -293,7 +376,15 @@ export const ArchiveTable: React.FC<ArchiveTableProps> = ({
       </div>
 
       {/* Table Body */}
-      <div className="flex-1 overflow-y-auto" onClick={(e) => e.target === e.currentTarget && onSelect([])}>
+      <div
+        ref={bodyRef}
+        className="flex-1 overflow-y-auto relative"
+        onMouseDown={startMarquee}
+        onClickCapture={(e) => {
+          if (marqueed.current) e.stopPropagation();
+        }}
+        onClick={(e) => e.target === e.currentTarget && !e.shiftKey && !e.metaKey && !e.ctrlKey && onSelect([])}
+      >
         {sorted.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-[#6e7687] text-center p-8 space-y-3">
             <PackageOpen size={36} className="opacity-40" />
@@ -310,7 +401,9 @@ export const ArchiveTable: React.FC<ArchiveTableProps> = ({
                 key={node.path}
                 onClick={(e) => handleRowClick(node, e)}
                 onDoubleClick={() => onOpen(node)}
-                draggable
+                data-path={node.path}
+                data-selected={isSelected}
+                draggable={isSelected}
                 onDragStart={(e) => {
                   e.preventDefault();
                   onDragOut(isSelected ? selectedNodes() : [node]);
@@ -343,6 +436,13 @@ export const ArchiveTable: React.FC<ArchiveTableProps> = ({
               </div>
             );
           })
+        )}
+        {marquee && (
+          <div
+            data-testid="marquee"
+            className="absolute pointer-events-none z-20 border border-[#8b5cf6] bg-[#8b5cf6]/20 rounded-[2px]"
+            style={{ left: marquee.x1, top: marquee.y1, width: marquee.x2 - marquee.x1, height: marquee.y2 - marquee.y1 }}
+          />
         )}
       </div>
 
