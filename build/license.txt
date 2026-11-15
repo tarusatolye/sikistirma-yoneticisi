@@ -2,7 +2,7 @@ tarus sıkıştırma yöneticisi - Son Kullanıcı Lisans ve Kullanım Sözleşm
 
 Yayımcı: tarusatolye
 Ürün: tarus sıkıştırma yöneticisi (Archive Manager)
-Sürüm: 0.0.2
+Sürüm: 0.0.3
 Telif Hakkı: (c) 2026 tarusatolye. MacRAR kaynaklı özellikler (c) 2026 Mesut Çevik.
 
 1. KAPSAM VE KABUL
