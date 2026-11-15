@@ -16,7 +16,7 @@ import {
   X,
   Upload,
 } from "lucide-react";
-import { invoke, listen, pathForFile, rendererReady } from "./bridge";
+import { dragOut, invoke, listen, pathForFile, rendererReady } from "./bridge";
 import { translations, fmt } from "./i18n";
 import { AppSettings, ArchiveInfo, CompressOptions, FORMAT_CAPS, JobResult, ListResult, RarStatus } from "./types";
 import { buildTree, parentPath, TreeNode } from "./tree";
@@ -369,6 +369,38 @@ export const App: React.FC = () => {
     }
   };
 
+  // Drag entries out to Finder / Explorer. The flag keeps a drop back onto this window from being read as new files.
+  const dragOutRef = useRef(false);
+
+  const dragOutNodes = (nodes: TreeNode[]) => {
+    if (!archive || !nodes.length) return;
+    const { info, password } = archive;
+    if (!password && (info.headersEncrypted || nodes.some((n) => n.encrypted))) {
+      showError(t.result.dragFailed, t.result.dragNeedsPassword);
+      return;
+    }
+    dragOutRef.current = true;
+    dragOut(info.path, nodes.map((n) => n.path), password);
+  };
+  const dragOutPassword = archive ? archive.password : null;
+  useEffect(() => {
+    const off = listen<{ reason: string; summary: string }>("drag_out_failed", (r) => {
+      dragOutRef.current = false;
+      if (r.reason === "password") showError(t.result.dragFailed, dragOutPassword ? t.result.dragWrongPassword : t.result.dragNeedsPassword);
+      else showError(t.result.dragFailed, r.summary);
+    });
+    const clear = () => {
+      dragOutRef.current = false;
+    };
+    window.addEventListener("dragend", clear);
+    window.addEventListener("mousedown", clear);
+    return () => {
+      off();
+      window.removeEventListener("dragend", clear);
+      window.removeEventListener("mousedown", clear);
+    };
+  });
+
   // ---------------------------------------------------------------------------
   // Modify
 
@@ -529,8 +561,12 @@ export const App: React.FC = () => {
   const onDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setDragging(false);
+    const own = dragOutRef.current;
+    dragOutRef.current = false;
+    if (own) return;
     if (busy && !compressItems) return;
-    const paths = Array.from(e.dataTransfer.files).map(pathForFile).filter(Boolean);
+    // Files dragged out of the archive into our own temp folder and dropped back are not new input.
+    const paths = Array.from(e.dataTransfer.files).map(pathForFile).filter((p) => p && !/[\\/]sikistirma-surukle[\\/]/.test(p));
     if (compressItems) setCompressItems([...compressItems, ...paths.filter((p) => !compressItems.includes(p))]);
     else handleIncoming(paths);
   };
@@ -774,6 +810,7 @@ export const App: React.FC = () => {
               onSelect={setSelected}
               onOpen={openNode}
               onContext={onContext}
+              onDragOut={dragOutNodes}
               canModify={archive.info.supportsModification}
               solid={archive.info.solid}
             />

@@ -1,10 +1,11 @@
-const { app, BrowserWindow, ipcMain, shell, Menu, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, Menu, dialog, nativeImage } = require('electron');
 const { autoUpdater } = require('electron-updater');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
 const sz = require('./sevenzip.cjs');
 const rarTools = require('./rartools.cjs');
+const dragout = require('./dragout.cjs');
 
 // Ensure single instance
 const gotTheLock = app.requestSingleInstanceLock();
@@ -161,6 +162,32 @@ ipcMain.on('renderer-ready', (e) => {
     e.sender.send('app-event', { event: 'open_paths', payload: p });
   }
 });
+
+// Drag entries out of the archive window into Finder / Explorer: extract to a temp folder, then start a native file drag.
+let dragBusy = false;
+ipcMain.on('drag_out', async (e, args = {}) => {
+  const sender = e.sender;
+  if (dragBusy) return;
+  dragBusy = true;
+  try {
+    const info = archives.get(args.path);
+    const names = Array.isArray(args.names) ? args.names.filter((n) => typeof n === 'string') : [];
+    if (!info || !names.length) return;
+    const r = await dragout.extractForDrag(info, names, args.password, runOpts());
+    if (r.status !== 'ok') {
+      emit('drag_out_failed', { reason: r.status, summary: r.summary || '' });
+      return;
+    }
+    dragTempDirs.push(r.dir);
+    const icon = nativeImage.createFromPath(path.join(__dirname, 'drag-icon.png'));
+    sender.startDrag({ files: r.paths, icon });
+  } catch (err) {
+    emit('drag_out_failed', { reason: 'error', summary: String(err && err.message || err) });
+  } finally {
+    dragBusy = false;
+  }
+});
+const dragTempDirs = [];
 
 ipcMain.handle('invoke', async (_e, cmd, args = {}) => {
   switch (cmd) {
@@ -500,4 +527,8 @@ app.on('before-quit', () => {
     if (j.current) j.current.cancel();
   }
   for (const d of tempDirs) fs.rmSync(d, { recursive: true, force: true });
+  for (const d of dragTempDirs) fs.rmSync(d, { recursive: true, force: true });
+  try {
+    fs.rmdirSync(dragout.dragRoot());
+  } catch {}
 });

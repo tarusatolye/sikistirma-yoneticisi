@@ -21,6 +21,8 @@ contextBridge.exposeInMainWorld('bridge', {
     listeners.get(event).add(cb);
     return () => listeners.get(event).delete(cb);
   },
+  // Drag archive entries out to the OS (Finder / Explorer); main extracts and starts the native drag.
+  dragOut: (payload) => ipcRenderer.send('drag_out', payload),
   ready: () => ipcRenderer.send('renderer-ready'),
   // Electron 32+ no longer exposes File.path; dropped files are resolved here.
   pathForFile: (file) => {

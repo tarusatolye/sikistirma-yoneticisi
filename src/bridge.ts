@@ -2,6 +2,7 @@
 interface Bridge {
   invoke: (cmd: string, args?: Record<string, unknown>) => Promise<any>;
   on: (event: string, cb: (payload: any) => void) => () => void;
+  dragOut: (payload: { path: string; names: string[]; password: string | null }) => void;
   ready: () => void;
   pathForFile: (file: File) => string;
 }
@@ -26,4 +27,8 @@ export function rendererReady() {
 
 export function pathForFile(file: File): string {
   return window.bridge.pathForFile(file);
+}
+
+export function dragOut(path: string, names: string[], password: string | null) {
+  window.bridge.dragOut({ path, names, password });
 }

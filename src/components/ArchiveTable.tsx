@@ -86,6 +86,7 @@ interface ArchiveTableProps {
   onSelect: (paths: string[]) => void;
   onOpen: (node: TreeNode) => void;
   onContext: (action: ContextAction, nodes: TreeNode[]) => void;
+  onDragOut: (nodes: TreeNode[]) => void;
   canModify: boolean;
   solid: boolean;
 }
@@ -102,6 +103,7 @@ export const ArchiveTable: React.FC<ArchiveTableProps> = ({
   onSelect,
   onOpen,
   onContext,
+  onDragOut,
   canModify,
   solid,
 }) => {
@@ -308,6 +310,14 @@ export const ArchiveTable: React.FC<ArchiveTableProps> = ({
                 key={node.path}
                 onClick={(e) => handleRowClick(node, e)}
                 onDoubleClick={() => onOpen(node)}
+                draggable
+                onDragStart={(e) => {
+                  // Native drag to Finder / Explorer is started by the main process after extracting.
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (!isSelected) onSelect([node.path]);
+                  onDragOut(isSelected ? selectedNodes() : [node]);
+                }}
                 onContextMenu={(e) => {
                   e.preventDefault();
                   if (!isSelected) onSelect([node.path]);
