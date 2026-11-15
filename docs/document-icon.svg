@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <title>Sıkıştırma Yöneticisi — arşiv belgesi</title>
+  <defs>
+    <linearGradient id="kagit" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#ece8f6"/>
+    </linearGradient>
+    <linearGradient id="zemin" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5b21b6"/>
+      <stop offset="1" stop-color="#4c1d95"/>
+    </linearGradient>
+  </defs>
+  <path d="M88 40a24 24 0 0 1 24-24h196l116 116v348a24 24 0 0 1-24 24H112a24 24 0 0 1-24-24z" fill="url(#kagit)" stroke="#c9c2de" stroke-width="4"/>
+  <path d="M308 16l116 116H332a24 24 0 0 1-24-24z" fill="#d9d2ee"/>
+  <rect x="136" y="208" width="240" height="240" rx="48" fill="url(#zemin)"/>
+  <g transform="translate(176 248) scale(6.667)" color="#ffffff">
+    <path fill="currentColor" d="M4.528 5.118a1 1 0 0 1 1.027.05l5.554 3.703A2 2 0 0 1 12 10.535V21a1 1 0 0 1-1.555.832l-5.554-3.703A2 2 0 0 1 4 16.465V6a1 1 0 0 1 .528-.882m4-2a1 1 0 0 1 1.027.05l5.554 3.703A2 2 0 0 1 16 8.535V19a1 1 0 0 1-1.555.832l-.945-.63v-8.667a3.5 3.5 0 0 0-1.559-2.912L8 4.995V4a1 1 0 0 1 .528-.882m4-2a1 1 0 0 1 1.027.05l5.554 3.703A2 2 0 0 1 20 6.535V17a1 1 0 0 1-1.555.832l-.945-.63V8.534a3.5 3.5 0 0 0-1.559-2.912L12 2.995V2a1 1 0 0 1 .528-.882"/>
+  </g>
+</svg>
