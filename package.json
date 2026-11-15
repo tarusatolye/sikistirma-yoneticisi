@@ -1,7 +1,7 @@
 {
   "name": "sikistirma-yoneticisi",
   "private": true,
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "tarus sıkıştırma yöneticisi — Windows ve macOS için açık kaynak kodlu arşiv yöneticisi",
   "author": "tarusatolye <yazilim@tarus.tr>",
   "copyright": "Copyright © 2026 tarusatolye",
@@ -49,11 +49,62 @@
       "package.json"
     ],
     "fileAssociations": [
-      { "ext": ["rar", "r00", "r01"], "name": "RAR Archive", "role": "Viewer", "icon": "docs/icon" },
-      { "ext": ["zip", "zipx"], "name": "ZIP Archive", "role": "Editor", "icon": "docs/icon" },
-      { "ext": "7z", "name": "7-Zip Archive", "role": "Editor", "icon": "docs/icon" },
-      { "ext": ["tar", "tgz", "gz", "bz2", "tbz2", "xz", "txz", "zst", "lz4", "lzma"], "name": "Compressed Archive", "role": "Viewer", "icon": "docs/icon" },
-      { "ext": ["cab", "iso", "arj", "lzh", "cpio", "wim", "001"], "name": "Archive", "role": "Viewer", "icon": "docs/icon" }
+      {
+        "ext": [
+          "rar",
+          "r00",
+          "r01"
+        ],
+        "name": "RAR Archive",
+        "role": "Viewer",
+        "icon": "docs/icon"
+      },
+      {
+        "ext": [
+          "zip",
+          "zipx"
+        ],
+        "name": "ZIP Archive",
+        "role": "Editor",
+        "icon": "docs/icon"
+      },
+      {
+        "ext": "7z",
+        "name": "7-Zip Archive",
+        "role": "Editor",
+        "icon": "docs/icon"
+      },
+      {
+        "ext": [
+          "tar",
+          "tgz",
+          "gz",
+          "bz2",
+          "tbz2",
+          "xz",
+          "txz",
+          "zst",
+          "lz4",
+          "lzma"
+        ],
+        "name": "Compressed Archive",
+        "role": "Viewer",
+        "icon": "docs/icon"
+      },
+      {
+        "ext": [
+          "cab",
+          "iso",
+          "arj",
+          "lzh",
+          "cpio",
+          "wim",
+          "001"
+        ],
+        "name": "Archive",
+        "role": "Viewer",
+        "icon": "docs/icon"
+      }
     ],
     "win": {
       "target": [
@@ -62,7 +113,10 @@
       ],
       "icon": "docs/icon.ico",
       "extraResources": [
-        { "from": "bin/win", "to": "bin" }
+        {
+          "from": "bin/win",
+          "to": "bin"
+        }
       ]
     },
     "nsis": {
@@ -94,8 +148,14 @@
       "category": "public.app-category.utilities",
       "artifactName": "Sikistirma-Yoneticisi-${version}-mac.${ext}",
       "extraResources": [
-        { "from": "bin/mac", "to": "bin" },
-        { "from": "resources/mac", "to": "." }
+        {
+          "from": "bin/mac",
+          "to": "bin"
+        },
+        {
+          "from": "resources/mac",
+          "to": "."
+        }
       ],
       "extendInfo": {
         "CFBundleDisplayName": "Sikistirma Yoneticisi",
